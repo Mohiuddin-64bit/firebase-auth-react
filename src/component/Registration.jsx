@@ -4,7 +4,7 @@ import { AuthContext } from "../Providers/AuthProvider";
 
 const Registration = () => {
   const [error, setError] = useState('')
-  const {createUser} = useContext(AuthContext);
+  const {createUser, googleSign} = useContext(AuthContext);
   
   const handleRegistration = event => {
     event.preventDefault();
@@ -20,7 +20,14 @@ const Registration = () => {
     }
     createUser(email, password)
     .then(result => {console.log(result.user)}) 
-    .catch(error => setError(error))
+    .catch(error => setError(error.message))
+  }
+
+  const signInWithGoogle = () => {
+    googleSign().then(result => {
+      const user = result.user
+    })
+    .catch(error => console.log(error))
   }
 
 
@@ -77,7 +84,7 @@ const Registration = () => {
                 </div>
                 <div className="form-control mt-6">
                   <button className="btn btn-primary">Registration</button>
-                  <button className="btn btn-primary mt-4">Google</button>
+                  <button onClick={signInWithGoogle} className="btn btn-primary mt-4">Google</button>
                 </div>
                 <p><small>Already have an account? <Link className="text-blue-500 font-bold" to='../login'>Click Here</Link></small></p>
               <p><small className="text-red-500">{error}</small></p>
