@@ -1,51 +1,66 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from "react";
 export const AuthContext = createContext(null);
-import {createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut} from 'firebase/auth';
-import app from '../component/firebase/firebase.config';
-const auth = getAuth(app)
+import {
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
+  sendPasswordResetEmail,
+  sendEmailVerification
+} from "firebase/auth";
+import app from "../component/firebase/firebase.config";
+const auth = getAuth(app);
 
-const AuthProvider = ({children}) => {
-
+const AuthProvider = ({ children }) => {
   const googleProvider = new GoogleAuthProvider();
+  const [loading, setLoading] = useState(true);
 
   const googleSign = () => {
     signInWithPopup(auth, googleProvider);
-  }
+  };
 
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState(null);
 
   const createUser = (email, password) => {
     return createUserWithEmailAndPassword(auth, email, password);
-  }
+  };
 
   const singIn = (email, password) => {
-    return signInWithEmailAndPassword(auth, email, password)
-  }
+    return signInWithEmailAndPassword(auth, email, password);
+  };
   const logOut = () => {
-    signOut(auth)
-  }
+    signOut(auth);
+  };
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, currentUser=>{
-      setUser(currentUser)
-    })
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
     return () => {
       return unsubscribe;
-    }
-  }, [])
+      setLoading(false)
+    };
+  }, []);
 
-  
+  const forgotPassword = () => {
+    return sendPasswordResetEmail(user.email);
+  }
+
+
   const authInfo = {
+    loading,
     user,
     createUser,
     singIn,
     logOut,
-    googleSign
-    
-  }
+    googleSign,
+    forgotPassword,
+    sendEmailVerification
+  };
   return (
-    <AuthContext.Provider value={authInfo}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>
   );
 };
 

@@ -1,11 +1,14 @@
 import React, { useContext, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../Providers/AuthProvider";
 
 const Login = () => {
   const [error, setError] = useState("");
-  const { singIn, googleSign } = useContext(AuthContext);
+  const { singIn, googleSign, forgotPassword } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation()
+  const from = location.state?.from?.pathname || '/';
+  console.log(from)
 
   const handleForm = (event) => {
     event.preventDefault();
@@ -21,7 +24,7 @@ const Login = () => {
     singIn(email, password)
       .then((result) => {
         console.log(result.user);
-        navigate("/");
+        navigate('/');
       })
       .catch((error) => setError(error.message));
   };
@@ -30,9 +33,23 @@ const Login = () => {
     googleSign()
       .then((result) => {
         const user = result.user;
+        navigate(from, {replace: true});  
       })
       .catch((error) => console.log(error));
   };
+  const resetPassword = () => {
+    forgotPassword()
+      .then((result) => {
+        // Email sent.
+        console.log(result);
+      })
+      .catch((error) => {
+        // An error happened.
+        // console.log(error.message)
+      });
+  };
+
+  const [show, setShow] = useState(false);
 
   return (
     <div>
@@ -56,18 +73,44 @@ const Login = () => {
                 />
               </div>
               <div className="form-control">
+                {show ? (
+                  <span>
+                    <label className="label">
+                      <span className="label-text">Password</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="password"
+                      required
+                      placeholder="password"
+                      className="input input-bordered"
+                    />
+                  </span>
+                ) : (
+                  <span>
+                    <label className="label">
+                      <span className="label-text">Password</span>
+                    </label>
+                    <input
+                      type="password"
+                      name="password"
+                      required
+                      placeholder="password"
+                      className="input input-bordered"
+                    />
+                  </span>
+                )}
                 <label className="label">
-                  <span className="label-text">Password</span>
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  required
-                  placeholder="password"
-                  className="input input-bordered"
-                />
-                <label className="label">
-                  <a href="#" className="label-text-alt link link-hover">
+                  <a
+                    onClick={() => setShow(!show)}
+                    className="label-text-alt link link-hover font-bold "
+                  >
+                    {show ? <span>Hide Password</span>:<span>Show Password</span>}
+                  </a>
+                  <a
+                    onClick={resetPassword}
+                    className="label-text-alt link link-hover"
+                  >
                     Forgot password?
                   </a>
                 </label>
